@@ -1,115 +1,128 @@
 <template>
-  <q-page class="q-pa-md bg-grey-1">
-    <div class="row items-center q-mb-md">
-      <q-breadcrumbs class="text-grey-8 text-h6" active-color="primary">
-        <template v-slot:separator>
-          <q-icon size="1.5em" name="chevron_right" color="primary" />
-        </template>
-        <q-breadcrumbs-el label="Home" icon="home" class="cursor-pointer" @click="navigateTo('')" />
-        <q-breadcrumbs-el
-          v-for="(folder, index) in breadcrumbs"
-          :key="index"
-          :label="folder.label"
-          class="cursor-pointer"
-          @click="navigateTo(folder.path)"
+  <q-page class="q-pa-lg">
+    <!-- Breadcrumbs & Actions -->
+    <div class="row items-center q-mb-xl">
+      <div class="col-grow">
+        <q-breadcrumbs class="text-grey-5 text-subtitle1" active-color="white">
+          <template v-slot:separator>
+            <q-icon size="1.2em" name="chevron_right" color="grey-7" />
+          </template>
+          <q-breadcrumbs-el
+            label="Home"
+            icon="home"
+            class="cursor-pointer hover-text-primary transition-colors"
+            @click="navigateTo('')"
+          />
+          <q-breadcrumbs-el
+            v-for="(folder, index) in breadcrumbs"
+            :key="index"
+            :label="folder.label"
+            class="cursor-pointer hover-text-primary transition-colors"
+            @click="navigateTo(folder.path)"
+          />
+        </q-breadcrumbs>
+      </div>
+
+      <div class="row q-gutter-sm">
+        <q-btn round flat icon="refresh" color="grey-5" @click="fetchFiles" class="hover-rotate">
+          <q-tooltip class="bg-dark text-body2">Refresh</q-tooltip>
+        </q-btn>
+
+        <q-file
+          v-model="fileToUpload"
+          borderless
+          dense
+          style="width: 0; min-height: 0; overflow: hidden; opacity: 0"
+          ref="fileInputRef"
+          @update:model-value="uploadFile"
         />
-      </q-breadcrumbs>
-      <q-space />
-      <q-btn round flat icon="refresh" color="primary" @click="fetchFiles" />
+        <q-btn
+          unelevated
+          rounded
+          color="primary"
+          icon="add"
+          label="Upload"
+          class="q-px-lg shadow-glow"
+          @click="$refs.fileInputRef.pickFiles()"
+          :loading="uploading"
+        />
+      </div>
     </div>
 
-    <div class="row q-col-gutter-md">
-      <!-- Upload Section -->
-      <div class="col-12">
-        <q-card flat bordered class="upload-card">
-          <q-card-section class="row items-center no-wrap">
-            <q-file v-model="fileToUpload" label="Upload File" outlined dense class="col">
-              <template v-slot:prepend>
-                <q-icon name="cloud_upload" />
-              </template>
-            </q-file>
-            <q-btn
-              label="Upload"
-              color="primary"
-              class="q-ml-sm"
-              :disable="!fileToUpload"
-              :loading="uploading"
-              @click="uploadFile"
-            />
-          </q-card-section>
-        </q-card>
+    <!-- Content Area -->
+    <div class="content-area">
+      <!-- Loading -->
+      <div v-if="loading" class="flex flex-center q-py-xl">
+        <q-spinner-dots size="50px" color="primary" />
       </div>
 
-      <!-- Folders and Files List -->
-      <div class="col-12">
-        <q-card flat bordered>
-          <q-list separator>
-            <!-- Loading State -->
-            <div v-if="loading" class="q-pa-md text-center">
-              <q-spinner size="40px" color="primary" />
-            </div>
+      <template v-else>
+        <!-- Empty State -->
+        <div
+          v-if="folders.length === 0 && files.length === 0"
+          class="column flex-center q-py-xl text-grey-7"
+        >
+          <q-icon name="cloud_off" size="64px" class="q-mb-md opacity-50" />
+          <div class="text-h6">Folder is empty</div>
+          <div class="text-caption">Upload a file to get started</div>
+        </div>
 
-            <template v-else>
-              <!-- Empty State -->
-              <q-item v-if="folders.length === 0 && files.length === 0">
-                <q-item-section avatar>
-                  <q-icon name="folder_open" color="grey-5" size="md" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label class="text-grey-6">Folder is empty</q-item-label>
-                </q-item-section>
-              </q-item>
+        <!-- Grid Layout -->
+        <div class="row q-col-gutter-lg">
+          <!-- Folders -->
+          <div
+            v-for="folder in folders"
+            :key="folder.prefix"
+            class="col-12 col-sm-6 col-md-4 col-lg-3"
+          >
+            <q-card
+              flat
+              class="folder-card cursor-pointer bg-dark-card q-pa-sm"
+              v-ripple
+              @click="navigateTo(folder.prefix)"
+            >
+              <q-card-section class="row items-center no-wrap">
+                <div class="icon-box bg-warning-dim q-mr-md">
+                  <q-icon name="folder" color="warning" size="24px" />
+                </div>
+                <div class="ellipsis text-white text-weight-medium">{{ folder.name }}</div>
+                <q-space />
+              </q-card-section>
+            </q-card>
+          </div>
 
-              <!-- Folders -->
-              <q-item
-                v-for="folder in folders"
-                :key="folder.prefix"
-                clickable
-                v-ripple
-                @click="navigateTo(folder.prefix)"
-              >
-                <q-item-section avatar>
-                  <q-icon name="folder" color="amber-7" size="md" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label class="text-weight-bold">{{ folder.name }}</q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <q-icon name="chevron_right" color="grey" />
-                </q-item-section>
-              </q-item>
+          <!-- Files -->
+          <div v-for="file in files" :key="file.key" class="col-12 col-sm-6 col-md-4 col-lg-3">
+            <q-card
+              flat
+              class="file-card cursor-pointer bg-dark-card transition-transform"
+              @click="openFile(file.key)"
+            >
+              <!-- Preview/Icon Area -->
+              <div class="file-preview row flex-center bg-dark-page">
+                <q-icon
+                  :name="getFileIcon(file.name)"
+                  color="primary"
+                  size="40px"
+                  class="opacity-80"
+                />
+              </div>
 
-              <!-- Files -->
-              <q-item
-                v-for="file in files"
-                :key="file.key"
-                clickable
-                v-ripple
-                @click="openFile(file.key)"
-              >
-                <q-item-section avatar>
-                  <q-icon :name="getFileIcon(file.name)" color="primary" size="md" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>{{ file.name }}</q-item-label>
-                  <q-item-label caption>
-                    {{ formatSize(file.size) }} • {{ formatDate(file.lastModified) }}
-                  </q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <q-btn
-                    flat
-                    round
-                    icon="download"
-                    color="grey-7"
-                    @click.stop="openFile(file.key)"
-                  />
-                </q-item-section>
-              </q-item>
-            </template>
-          </q-list>
-        </q-card>
-      </div>
+              <q-card-section>
+                <div class="row items-center no-wrap">
+                  <div class="col">
+                    <div class="text-white text-weight-bold ellipsis">{{ file.name }}</div>
+                    <div class="text-grey-6 text-caption q-mt-xs">
+                      {{ formatSize(file.size) }}
+                    </div>
+                  </div>
+                  <q-btn flat round icon="more_vert" color="grey-6" size="sm" @click.stop />
+                </div>
+              </q-card-section>
+            </q-card>
+          </div>
+        </div>
+      </template>
     </div>
   </q-page>
 </template>
@@ -129,6 +142,7 @@ export default defineComponent({
     const loading = ref(false)
     const uploading = ref(false)
     const fileToUpload = ref(null)
+    const fileInputRef = ref(null)
 
     const breadcrumbs = computed(() => {
       if (!currentPath.value) return []
@@ -149,16 +163,13 @@ export default defineComponent({
         const response = await api.get('/list-objects', {
           params: { prefix: currentPath.value },
         })
-
         const data = response.data
 
-        // Parse Folders
         folders.value = (data.CommonPrefixes || []).map((p) => ({
           prefix: p.Prefix,
           name: p.Prefix.replace(currentPath.value, '').replace('/', ''),
         }))
 
-        // Parse Files
         files.value = (data.Contents || [])
           .map((f) => ({
             key: f.Key,
@@ -166,49 +177,44 @@ export default defineComponent({
             size: f.Size,
             lastModified: f.LastModified,
           }))
-          .filter((f) => f.name !== '') // Filter out the current directory marker if present
+          .filter((f) => f.name !== '')
       } catch (error) {
         console.error(error)
         $q.notify({
-          color: 'negative',
-          message: 'Failed to load files',
-          icon: 'error',
+          type: 'negative',
+          message: 'Failed to retrieve files',
+          position: 'top',
         })
       } finally {
         loading.value = false
       }
     }
 
-    const uploadFile = async () => {
-      if (!fileToUpload.value) return
+    const uploadFile = async (file) => {
+      if (!file) return
 
       uploading.value = true
+      fileToUpload.value = file
       const formData = new FormData()
-      formData.append('file', fileToUpload.value)
-      // Note: Backend currently uploads to 'pics/' hardcoded or similar in upload_file?
-      // Checking backend code: upload_file uses Key=f"pics/{file.filename}".
-      // It IGNORES current path. We might want to fix backend to accept path,
-      // but for now we won't break it.
-      // Actually, let's just upload. The backend forces "pics/" prefix in step 253.
+      formData.append('file', file)
 
       try {
         await api.post('/upload', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         })
         $q.notify({
-          color: 'positive',
-          message: 'File uploaded successfully',
-          icon: 'check',
+          type: 'positive',
+          message: 'Upload successful',
+          position: 'top',
         })
         fileToUpload.value = null
-        // If we are in root or pics folder, refresh.
         fetchFiles()
       } catch (error) {
         console.error(error)
         $q.notify({
-          color: 'negative',
+          type: 'negative',
           message: 'Upload failed',
-          icon: 'error',
+          position: 'top',
         })
       } finally {
         uploading.value = false
@@ -221,30 +227,26 @@ export default defineComponent({
     }
 
     const openFile = (key) => {
-      // Direct download/view link
       const url = `http://localhost:8000/object/${key}`
       window.open(url, '_blank')
     }
 
     const formatSize = (bytes) => {
-      if (bytes === 0) return '0 Bytes'
+      if (bytes === 0) return '0 B'
       const k = 1024
-      const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+      const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
       const i = Math.floor(Math.log(bytes) / Math.log(k))
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-    }
-
-    const formatDate = (dateString) => {
-      if (!dateString) return ''
-      return new Date(dateString).toLocaleString()
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
     }
 
     const getFileIcon = (filename) => {
       const ext = filename.split('.').pop().toLowerCase()
-      if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) return 'image'
+      if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return 'image'
       if (['pdf'].includes(ext)) return 'picture_as_pdf'
-      if (['txt', 'md'].includes(ext)) return 'description'
-      if (['mp4', 'mov'].includes(ext)) return 'movie'
+      if (['txt', 'md', 'doc', 'docx'].includes(ext)) return 'description'
+      if (['mp4', 'mov', 'avi'].includes(ext)) return 'movie'
+      if (['mp3', 'wav'].includes(ext)) return 'audiotrack'
+      if (['zip', 'rar', '7z'].includes(ext)) return 'folder_zip'
       return 'insert_drive_file'
     }
 
@@ -260,20 +262,72 @@ export default defineComponent({
       loading,
       uploading,
       fileToUpload,
+      fileInputRef,
       fetchFiles,
       uploadFile,
       navigateTo,
       openFile,
       formatSize,
-      formatDate,
       getFileIcon,
     }
   },
 })
 </script>
 
-<style scoped>
-.upload-card {
-  border-radius: 8px;
+<style scoped lang="scss">
+.bg-dark-card {
+  background: #1e1e1e; /* Slightly lighter than page dark */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+.folder-card:hover,
+.file-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  background: #252525;
+}
+
+.icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bg-warning-dim {
+  background: rgba(253, 203, 110, 0.15);
+}
+
+.file-preview {
+  height: 120px;
+  border-radius: 16px 16px 0 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.hover-text-primary:hover {
+  color: var(--q-primary) !important;
+}
+
+.transition-colors {
+  transition: color 0.3s ease;
+}
+
+.hover-rotate:hover .q-icon {
+  transform: rotate(180deg);
+  transition: transform 0.5s ease;
+}
+
+.shadow-glow {
+  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 6px 20px rgba(108, 92, 231, 0.6);
+  }
 }
 </style>
