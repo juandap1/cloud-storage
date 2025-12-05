@@ -40,3 +40,10 @@ def list_objects(prefix: Optional[str] = None):
         return response
     except ClientError:
         raise HTTPException(status_code=500, detail="Failed to list objects")
+
+def get_object(s3_key: str):
+    try:
+        response = s3.get_object(Bucket="bran-bucket", Key=s3_key)
+        return response
+    except ClientError:
+        raise HTTPException(status_code=500, detail="Failed to get object")
