@@ -1,23 +1,11 @@
 FROM python:3.11-slim
 
-
-# Set working directory
 WORKDIR /app
 
-# Install pipenv
-RUN pip install pipenv
+COPY requirements.txt .
 
-# Copy Pipfile and Pipfile.lock
-COPY Pipfile Pipfile.lock ./
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install dependencies globally (system-wide) to avoid virtualenv creation
-RUN pipenv install --system --deploy
+COPY ./app ./app
 
-# Copy all files
-COPY . .
-
-# Expose the application port
-EXPOSE 8000
-
-# Run the application
-CMD ["fastapi", "run", "app.py", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
