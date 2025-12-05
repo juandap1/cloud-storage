@@ -1,9 +1,18 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import StreamingResponse
 from app.s3_client import create_bucket, upload_file, list_objects, get_object
+from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.on_event("startup")
 def startup():
