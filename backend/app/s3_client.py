@@ -24,10 +24,13 @@ def create_bucket(bucket_name):
 
 def upload_file(file, bucket_name):
     try:
-        s3.upload_fileobj(
-            Fileobj=file.file,
+        content_type = file.content_type
+        s3.put_object(
+            Body=file.file,
             Bucket=bucket_name,
-            Key=f"pics/{file.filename}"
+            Key=f"pics/{file.filename}",
+            ContentType=content_type,
+            Metadata={'original-name': file.filename}
         )
     except ClientError:
         raise HTTPException(status_code=500, detail="Failed to upload file")

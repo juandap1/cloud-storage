@@ -38,6 +38,7 @@ def list_s3_objects(prefix: Optional[str] = None):
 async def retrieve_object(s3_key: str):
     file = get_object(s3_key)
     content_type = file.get('ContentType', 'application/octet-stream')
+    print(content_type)
     object_body = file.get('Body')
     def file_iterator():
         """Yields chunks of the file stream."""
@@ -48,4 +49,10 @@ async def retrieve_object(s3_key: str):
         finally:
             # Ensure the stream is closed
             object_body.close()
-    return StreamingResponse(file_iterator(), media_type=content_type)
+    return StreamingResponse(
+        file_iterator(), 
+        media_type=content_type,
+        headers={
+            "Content-Disposition": f"inline; filename=\"{s3_key.split('/')[-1]}\"",
+        }
+    )
