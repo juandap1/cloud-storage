@@ -20,3 +20,13 @@ def create_bucket(bucket_name):
         s3.head_bucket(Bucket=bucket_name)
     except ClientError:
         s3.create_bucket(Bucket=bucket_name)
+
+def upload_file(file, bucket_name):
+    try:
+        s3.upload_fileobj(
+            Fileobj=file.file,
+            Bucket=bucket_name,
+            Key=f"pics/{file.filename}"
+        )
+    except ClientError:
+        raise HTTPException(status_code=500, detail="Failed to upload file")

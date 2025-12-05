@@ -1,5 +1,5 @@
-from fastapi import FastAPI
-from app.s3_client import create_bucket
+from fastapi import FastAPI, UploadFile, File
+from app.s3_client import create_bucket, upload_file
 
 app = FastAPI()
 
@@ -11,3 +11,8 @@ def startup():
 @app.get("/")
 def health_check():
     return {"Hello": "World"}
+
+@app.post("/upload")
+def upload_to_s3(file: UploadFile = File(...)):
+    upload_file(file, "bran-bucket")
+    return {"message": "File uploaded successfully"}
