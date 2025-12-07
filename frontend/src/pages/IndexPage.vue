@@ -165,17 +165,17 @@ export default defineComponent({
         })
         const data = response.data
 
-        folders.value = (data.CommonPrefixes || []).map((p) => ({
-          prefix: p.Prefix,
-          name: p.Prefix.replace(currentPath.value, '').replace('/', ''),
+        folders.value = (data.commonPrefixes || data.CommonPrefixes || []).map((p) => ({
+          prefix: p.prefix || p.Prefix,
+          name: (p.prefix || p.Prefix).replace(currentPath.value, '').replace('/', ''),
         }))
 
-        files.value = (data.Contents || [])
+        files.value = (data.contents || data.Contents || [])
           .map((f) => ({
-            key: f.Key,
-            name: f.Key.replace(currentPath.value, ''),
-            size: f.Size,
-            lastModified: f.LastModified,
+            key: f.key || f.Key,
+            name: (f.key || f.Key).replace(currentPath.value, ''),
+            size: f.size || f.Size,
+            lastModified: f.lastModified || f.LastModified,
           }))
           .filter((f) => f.name !== '')
       } catch (error) {

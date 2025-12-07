@@ -44,7 +44,9 @@ serve({
     }
 
     if (path === "/list-objects" && method === "GET") {
-      const objects = await client.list();
+      const url = new URL(req.url);
+      const prefix = "/"; //url.searchParams.get("prefix") || "";
+      const objects = await client.list({ prefix, delimiter: "/" });
       return postProcessResponse(
         new Response(JSON.stringify(objects), { status: 200 })
       );
@@ -67,6 +69,14 @@ serve({
         );
       }
       return postProcessResponse(new Response(object));
+    }
+
+    if (path.startsWith("/object/") && method === "DELETE") {
+      const key = path.substring("/object/".length);
+      await client.delete(key);
+      return postProcessResponse(
+        new Response("Object deleted successfully", { status: 200 })
+      );
     }
 
     // 404s
