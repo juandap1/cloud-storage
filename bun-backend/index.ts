@@ -45,8 +45,11 @@ serve({
 
     if (path === "/list-objects" && method === "GET") {
       const url = new URL(req.url);
-      const prefix = "/"; //url.searchParams.get("prefix") || "";
-      const objects = await client.list({ prefix, delimiter: "/" });
+      const prefix = url.searchParams.get("prefix") || "";
+      const objects = await client.list({
+        prefix,
+        delimiter: "/",
+      });
       return postProcessResponse(
         new Response(JSON.stringify(objects), { status: 200 })
       );
