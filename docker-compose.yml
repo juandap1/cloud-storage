@@ -25,7 +25,16 @@ services:
 
     # Optional: Automatically restart the container if it crashes
     restart: always
-
+  radicale:
+    image: tomsquest/docker-radicale:latest
+    container_name: radicale
+    restart: unless-stopped
+    ports:
+      - "5232:5232"
+    volumes:
+      - radicale_data:/data
+      - ./config/radicale/config:/config/config:ro
+      - ./config/radicale/users:/config/users:ro
   # backend:
   #   build: ./backend
   #   container_name: cloud_storage_backend
@@ -39,18 +48,18 @@ services:
   #     MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
   #     PYTHONUNBUFFERED: 1
   #   # restart: always
-  bun_backend:
-    build: ./bun-backend
-    container_name: bun_backend
-    ports:
-      - "6989:6989"
-    depends_on:
-      - minio
-    environment:
-      MINIO_ENDPOINT: minio:9000
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-    volumes:
-      - ./bun-backend:/app
-    tty: true
-    stdin_open: true
+  # bun_backend:
+  #   build: ./bun-backend
+  #   container_name: bun_backend
+  #   ports:
+  #     - "6989:6989"
+  #   depends_on:
+  #     - minio
+  #   environment:
+  #     MINIO_ENDPOINT: minio:9000
+  #     MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+  #     MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+  #   volumes:
+  #     - ./bun-backend:/app
+  #   tty: true
+  #   stdin_open: true
