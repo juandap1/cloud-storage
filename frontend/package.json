@@ -1,8 +1,8 @@
 {
   "name": "frontend",
   "version": "0.0.1",
-  "description": "A Quasar Project",
-  "productName": "Quasar App",
+  "description": "CloudMax",
+  "productName": "CloudMax",
   "author": "Matthew Branning <48932625+juandap1@users.noreply.github.com>",
   "type": "module",
   "private": true,

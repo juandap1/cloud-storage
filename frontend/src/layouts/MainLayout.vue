@@ -4,9 +4,11 @@
       <q-toolbar>
         <q-toolbar-title class="text-weight-bold row items-center">
           <q-icon name="cloud_queue" size="28px" class="q-mr-sm text-primary" />
-          <span class="text-h6 text-primary text-weight-light">BRAN</span>
           <span class="text-h6" style="letter-spacing: 1px">CLOUD</span>
+          <span class="text-h6 text-primary text-weight-light">MAX</span>
         </q-toolbar-title>
+        <q-space />
+        <div class="text-subtitle2 text-grey-5">v0.0.1</div>
       </q-toolbar>
     </q-header>
 
