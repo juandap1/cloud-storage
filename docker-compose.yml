@@ -1,53 +1,48 @@
 version: "3.8"
 
 services:
-  minio:
-    image: minio/minio:latest
-    container_name: minio_server
-    # Set the credentials for the admin user (API and Console access)
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-      # Optional: To enable the console on a different port (e.g., 9001)
-      MINIO_SERVER_URL: http://127.0.0.1:9000
-
-    ports:
-      # Port 9000 is for the S3 API calls (your code will talk to this)
-      - "9000:9000"
-      # Port 9001 is for the MinIO Console/Web Interface (for you to browse files)
-      - "9001:9001"
-
-    volumes:
-      # This is where your actual data will be stored on your local machine
-      - ./minio_data:/data
-
-    command: server /data --console-address ":9001"
-
-    # Optional: Automatically restart the container if it crashes
-    restart: always
-  radicale:
-    image: tomsquest/docker-radicale:latest
-    container_name: radicale
-    restart: unless-stopped
-    ports:
-      - "5232:5232"
-    volumes:
-      - radicale_data:/data
-      - ./config/radicale/config:/config/config:ro
-      - ./config/radicale/users:/config/users:ro
-  # backend:
-  #   build: ./backend
-  #   container_name: cloud_storage_backend
-  #   ports:
-  #     - "8000:8000"
-  #   depends_on:
-  #     - minio
+  # minio:
+  #   image: minio/minio:latest
+  #   container_name: minio_server
+  #   # Set the credentials for the admin user (API and Console access)
   #   environment:
-  #     MINIO_ENDPOINT: minio:9000
   #     MINIO_ROOT_USER: ${MINIO_ROOT_USER}
   #     MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-  #     PYTHONUNBUFFERED: 1
-  #   # restart: always
+  #     # Optional: To enable the console on a different port (e.g., 9001)
+  #     MINIO_SERVER_URL: http://127.0.0.1:9000
+
+  #   ports:
+  #     # Port 9000 is for the S3 API calls (your code will talk to this)
+  #     - "9000:9000"
+  #     # Port 9001 is for the MinIO Console/Web Interface (for you to browse files)
+  #     - "9001:9001"
+
+  #   volumes:
+  #     # This is where your actual data will be stored on your local machine
+  #     - ./minio_data:/data
+
+  #   command: server /data --console-address ":9001"
+
+  #   # Optional: Automatically restart the container if it crashes
+  #   restart: always
+  # radicale:
+  # image: tomsquest/docker-radicale:latest
+  # container_name: radicale
+  # restart: unless-stopped
+  # ports:
+  #   - "5232:5232"
+  # volumes:
+  #   - radicale_data:/data
+  #   - ./config/radicale/config:/config/config:ro
+  #   - ./config/radicale/users:/config/users:ro
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "3141:3141"
+    # depends_on:
+    #   - minio
+    #   - radicale
   # bun_backend:
   #   build: ./bun-backend
   #   container_name: bun_backend
@@ -63,3 +58,17 @@ services:
   #     - ./bun-backend:/app
   #   tty: true
   #   stdin_open: true
+
+  #   # backend:
+  #   #   build: ./backend
+  #   #   container_name: cloud_storage_backend
+  #   #   ports:
+  #   #     - "8000:8000"
+  #   #   depends_on:
+  #   #     - minio
+  #   #   environment:
+  #   #     MINIO_ENDPOINT: minio:9000
+  #   #     MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+  #   #     MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+  #   #     PYTHONUNBUFFERED: 1
+  #   #   # restart: always
