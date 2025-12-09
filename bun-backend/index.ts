@@ -36,15 +36,17 @@ serve({
         return client.write(destination, file);
       });
       const results = await Promise.all(uploadPromises);
-      return new Response(
-        JSON.stringify({
-          message: `File uploads finished.`,
-          results: results,
-        }),
-        {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        }
+      return postProcessResponse(
+        new Response(
+          JSON.stringify({
+            message: `File uploads finished.`,
+            results: results,
+          }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          }
+        )
       );
     }
 
