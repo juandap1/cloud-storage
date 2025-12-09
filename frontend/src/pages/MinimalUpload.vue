@@ -9,6 +9,7 @@
     <button v-if="files.length > 0" class="upload-button" @click="uploadFiles">
       Upload {{ files.length }} Image(s)
     </button>
+    <div v-if="error" class="error-message">{{ error }}</div>
     <div v-if="files.length > 0" class="q-pa-lg">
       <h6>Preview Files</h6>
       <div class="preview-container">
@@ -40,6 +41,7 @@ export default defineComponent({
   },
   methods: {
     processFiles(e) {
+      this.error = null
       this.files = Array.from(e.target.files)
       this.previews = this.files.map((file) => URL.createObjectURL(file))
     },
@@ -169,6 +171,14 @@ p {
   cursor: pointer;
   transition: all 0.3s ease;
   padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.error-message {
+  color: red;
+  margin: 10px 0;
+  background-color: rgba(255, 72, 72, 0.1);
+  padding: 10px;
   border-radius: 5px;
 }
 </style>
