@@ -13,7 +13,7 @@ services:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - ./minio_data:/data
+      - minio_data:/data
     command: server /data --console-address ":9001"
     restart: always
   radicale:
@@ -49,3 +49,6 @@ services:
       - ./bun-backend:/app
     tty: true
     stdin_open: true
+volumes:
+  radicale_data:
+  minio_data:
