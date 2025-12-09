@@ -12,10 +12,10 @@
     <div v-if="files.length > 0" class="q-pa-lg">
       <h6>Preview Files</h6>
       <div class="preview-container">
-        <div class="preview-wrapper" v-for="preview in previews" :key="preview">
+        <div class="preview-wrapper" v-for="(preview, index) in previews" :key="index">
           <img :src="preview" />
           <div>
-            <button class="remove-button">Remove</button>
+            <button class="remove-button" @click="removeFile(index)">Remove</button>
           </div>
         </div>
       </div>
@@ -42,6 +42,10 @@ export default defineComponent({
     processFiles(e) {
       this.files = Array.from(e.target.files)
       this.previews = this.files.map((file) => URL.createObjectURL(file))
+    },
+    removeFile(index) {
+      this.files.splice(index, 1)
+      this.previews.splice(index, 1)
     },
     async uploadFiles() {
       try {
