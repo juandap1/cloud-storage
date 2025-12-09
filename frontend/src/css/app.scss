@@ -1,1 +1,7 @@
-// app global css in SCSS form
+.q-loading__backdrop {
+  opacity: 0.9;
+}
+.q-loading__message {
+  font-size: 1.5rem;
+  font-weight: bold;
+}

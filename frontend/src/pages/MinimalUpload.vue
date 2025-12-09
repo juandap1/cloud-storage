@@ -4,9 +4,9 @@
       <q-icon class="upload-icon" name="mdi-cloud-upload-outline" size="50px" />
       <h6>Select Photos to Upload</h6>
       <p>Drag and drop files here or click to upload</p>
-      <input class="upload-input" type="file" multiple @change="processFiles" />
+      <input class="upload-input" type="file" multiple @change="processFiles" accept="image/*" />
     </div>
-    <button v-if="files.length > 0" class="upload-button">
+    <button v-if="files.length > 0" class="upload-button" @click="uploadFiles">
       Upload {{ files.length }} Image(s)
     </button>
     <div v-if="files.length > 0" class="q-pa-lg">
@@ -24,7 +24,9 @@
 </template>
 
 <script>
+import { api } from 'src/boot/axios'
 import { defineComponent } from 'vue'
+import { QSpinnerDots } from 'quasar'
 
 export default defineComponent({
   name: 'MinimalUpload',
@@ -33,6 +35,7 @@ export default defineComponent({
     return {
       files: [],
       previews: null,
+      error: null,
     }
   },
   methods: {
@@ -40,7 +43,34 @@ export default defineComponent({
       this.files = Array.from(e.target.files)
       this.previews = this.files.map((file) => URL.createObjectURL(file))
     },
+    async uploadFiles() {
+      try {
+        this.$q.loading.show({
+          spinner: QSpinnerDots,
+          spinnerColor: 'primary',
+          message: 'Uploading Files...',
+          messageColor: 'white',
+        })
+        const formData = new FormData()
+        this.files.forEach((file) => {
+          formData.append('photos', file)
+        })
+        let res = await api.post('/upload', formData)
+        if (res.status === 200) {
+          this.$q.notify({
+            type: 'positive',
+            message: 'Files uploaded successfully',
+          })
+        }
+      } catch (e) {
+        this.error = e.message
+      }
+      this.files = []
+      this.previews = null
+      this.$q.loading.hide()
+    },
   },
+  mounted() {},
 })
 </script>
 
