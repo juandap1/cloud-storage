@@ -42,8 +42,12 @@ export default defineComponent({
   methods: {
     processFiles(e) {
       this.error = null
-      this.files = Array.from(e.target.files)
-      this.previews = this.files.map((file) => URL.createObjectURL(file))
+      try {
+        this.files = Array.from(e.target.files)
+        this.previews = this.files.map((file) => URL.createObjectURL(file))
+      } catch (e) {
+        this.error = e.message
+      }
     },
     removeFile(index) {
       this.files.splice(index, 1)
