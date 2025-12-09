@@ -63,7 +63,7 @@ export default defineComponent({
         })
         const formData = new FormData()
         this.files.forEach((file) => {
-          formData.append('photos', file)
+          formData.append('file', file)
         })
         let res = await api.post('/upload', formData)
         if (res.status === 200) {

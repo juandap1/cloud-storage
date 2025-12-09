@@ -25,21 +25,26 @@ serve({
 
     if (path === "/upload" && method === "POST") {
       const formData = await req.formData();
-      const file = formData.get("file");
-      if (!file || !(file instanceof File)) {
-        return postProcessResponse(
-          new Response("No file provided.", { status: 400 })
-        );
-      }
-      const fileName = file.name;
-      const destination = `pics/${fileName}`;
-      await client.write(destination, file);
-
-      console.log(`File uploaded successfully: ${destination}`);
-      return postProcessResponse(
-        new Response(`File uploaded successfully saved as ${destination}`, {
+      const files = formData.getAll("file");
+      const uploadedFiles = files.filter((item) => item instanceof File);
+      const uploadPromises = uploadedFiles.map((file) => {
+        const uuid = crypto.randomUUID();
+        const parts = file.name.split(".");
+        const extension = parts.length > 1 ? `.${parts.pop()}` : "";
+        const fileName = `${uuid}${extension}`;
+        const destination = `pics/${fileName}`;
+        return client.write(destination, file);
+      });
+      const results = await Promise.all(uploadPromises);
+      return new Response(
+        JSON.stringify({
+          message: `File uploads finished.`,
+          results: results,
+        }),
+        {
           status: 200,
-        })
+          headers: { "Content-Type": "application/json" },
+        }
       );
     }
 
