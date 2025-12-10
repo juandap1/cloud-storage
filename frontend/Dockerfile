@@ -1,4 +1,3 @@
-   # Stage 1: Build the Quasar application
    FROM node:lts-alpine AS build-stage
 
    WORKDIR /app
@@ -7,9 +6,8 @@
 
    RUN npm install
 
-   RUN quasar build
+   RUN npx quasar build
 
-   # Stage 2: Serve the static assets with Nginx
    FROM nginx:stable-alpine AS production-stage
 
    COPY --from=build-stage /app/dist/spa /usr/share/nginx/html
