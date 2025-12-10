@@ -1,17 +1,21 @@
-   FROM node:lts-alpine AS build-stage
+FROM node:lts-alpine AS build-stage
 
-   WORKDIR /app
+WORKDIR /app
 
-   COPY . .
+COPY . .
 
-   RUN npm install
+RUN npm install
 
-   RUN npx quasar build
+RUN npx quasar build
 
-   FROM nginx:stable-alpine AS production-stage
+FROM nginx:stable-alpine AS production-stage
 
-   COPY --from=build-stage /app/dist/spa /usr/share/nginx/html
+RUN rm -rf /etc/nginx/conf.d/default.conf
 
-   EXPOSE 80
+COPY --from=build-stage /app/dist/spa /usr/share/nginx/html
 
-   CMD ["nginx", "-g", "daemon off;"]
+COPY nginx.conf /etc/nginx/nginx.conf
+
+EXPOSE 3141
+
+CMD ["nginx", "-g", "daemon off;"]
