@@ -11,7 +11,7 @@ const client = new S3Client({
 });
 
 const caldavClient = await createDAVClient({
-  serverUrl: process.env.CALDAV_URL || "http://173.73.175.116:5232",
+  serverUrl: process.env.CALDAV_URL,
   credentials: {
     username: process.env.CALDAV_USER || "admin",
     password: process.env.CALDAV_PASS || "",
