@@ -3,10 +3,10 @@
 
    WORKDIR /app
 
-   COPY package*.json ./
+   COPY . .
+
    RUN npm install
 
-   COPY . .
    RUN quasar build
 
    # Stage 2: Serve the static assets with Nginx
