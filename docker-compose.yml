@@ -46,6 +46,8 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
       CALDAV_URL: http://radicale:5232
+      CALDAV_USER: ${CALDAV_USER}
+      CALDAV_PASS: ${CALDAV_PASS}
     volumes:
       - ./bun-backend:/app
     tty: true
