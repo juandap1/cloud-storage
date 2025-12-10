@@ -55,9 +55,9 @@ services:
     restart: unless-stopped
     ports:
       # These ports are what you expose to the public internet/LAN.
-      - '80:80'    # Public HTTP (for Let's Encrypt challenge)
-      - '443:443'  # Public HTTPS
-      - '81:81'    # NPM Admin Interface (change '81' to a random high port if you want to hide it)
+      - "80:80" # Public HTTP (for Let's Encrypt challenge)
+      - "443:443" # Public HTTPS
+      - "81:81" # NPM Admin Interface (change '81' to a random high port if you want to hide it)
     environment:
       # Use an internal SQLite database (stored in the data volume)
       - DB_SQLITE_FILE=/data/database.sqlite
@@ -66,6 +66,6 @@ services:
       # These volumes store all your configuration, SSL certificates, and database.
       - ./data:/data
       - ./letsencrypt:/etc/letsencrypt
-# volumes:
-#   radicale_data:
-#   minio_data:
+volumes:
+  radicale_data:
+  minio_data:
