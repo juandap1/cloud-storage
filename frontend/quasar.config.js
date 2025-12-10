@@ -75,6 +75,7 @@ export default defineConfig((/* ctx */) => {
       // https: true,
       open: true, // opens browser window automatically
       port: 3141,
+      allowedHosts: ['cloud.mbranning.org', 'localhost', '127.0.0.1'],
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#framework
