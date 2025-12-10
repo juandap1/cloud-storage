@@ -11,5 +11,9 @@
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "node-ical": "^0.22.1",
+    "tsdav": "^2.1.6"
   }
 }

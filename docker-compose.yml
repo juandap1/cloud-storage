@@ -49,6 +49,23 @@ services:
       - ./bun-backend:/app
     tty: true
     stdin_open: true
-volumes:
-  radicale_data:
-  minio_data:
+  nginx-proxy-manager:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: nginx-proxy-manager
+    restart: unless-stopped
+    ports:
+      # These ports are what you expose to the public internet/LAN.
+      - '80:80'    # Public HTTP (for Let's Encrypt challenge)
+      - '443:443'  # Public HTTPS
+      - '81:81'    # NPM Admin Interface (change '81' to a random high port if you want to hide it)
+    environment:
+      # Use an internal SQLite database (stored in the data volume)
+      - DB_SQLITE_FILE=/data/database.sqlite
+      - DISABLE_IPV6=true # Recommended for simple home setups
+    volumes:
+      # These volumes store all your configuration, SSL certificates, and database.
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+# volumes:
+#   radicale_data:
+#   minio_data:
