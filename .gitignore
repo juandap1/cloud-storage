@@ -1,3 +1,4 @@
 .env
 minio_data
-data/
+data
+letsencrypt
