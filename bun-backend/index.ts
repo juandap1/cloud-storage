@@ -7,7 +7,7 @@ const client = new S3Client({
   accessKeyId: process.env.MINIO_ROOT_USER,
   secretAccessKey: process.env.MINIO_ROOT_PASSWORD,
   bucket: "bran-bucket",
-  endpoint: `http://${process.env.MINIO_ENDPOINT}`,
+  endpoint: "https://s3.mbranning.org",
 });
 
 const caldavClient = await createDAVClient({
