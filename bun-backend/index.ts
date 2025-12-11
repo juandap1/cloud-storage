@@ -96,8 +96,10 @@ serve({
     }
 
     if (path === "/upload" && method === "POST") {
+      console.log("File Upload Endpoint");
       const formData = await req.formData();
       const files = formData.getAll("file");
+      console.log(files);
       const uploadedFiles = files.filter((item) => item instanceof File);
       const uploadPromises = uploadedFiles.map((file) => {
         const uuid = crypto.randomUUID();
@@ -107,7 +109,9 @@ serve({
         const destination = `pics/${fileName}`;
         return client.write(destination, file);
       });
+      console.log(uploadPromises);
       const results = await Promise.all(uploadPromises);
+      console.log(results);
       return postProcessResponse(
         new Response(
           JSON.stringify({
