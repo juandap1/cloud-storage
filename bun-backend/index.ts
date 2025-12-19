@@ -101,25 +101,34 @@ serve({
       const files = formData.getAll("file");
       console.log(files);
       const uploadedFiles = files.filter((item) => item instanceof File);
-      const uploadPromises = uploadedFiles.map((file) => {
+      const uploadPromises = uploadedFiles.map(async (file) => {
         const uuid = crypto.randomUUID();
         const parts = file.name.split(".");
         const extension = parts.length > 1 ? `.${parts.pop()}` : "";
         const fileName = `${uuid}${extension}`;
         const destination = `pics/${fileName}`;
-        return client.write(destination, file);
+        try {
+          const result = await client.write(destination, file);
+          console.log(`Upload complete: ${fileName}`, result);
+          return result;
+        } catch (error) {
+          console.error(`Upload failed: ${fileName}`, error);
+          throw error;
+        }
       });
-      console.log(uploadPromises);
-      const results = await Promise.all(uploadPromises);
-      console.log(results);
+
+      // Execute in background
+      Promise.all(uploadPromises)
+        .then((results) => console.log("All uploads finished:", results))
+        .catch((err) => console.error("Error in background uploads:", err));
+
       return postProcessResponse(
         new Response(
           JSON.stringify({
-            message: `File uploads finished.`,
-            results: results,
+            message: `File uploads started.`,
           }),
           {
-            status: 200,
+            status: 202,
             headers: { "Content-Type": "application/json" },
           }
         )
@@ -136,12 +145,26 @@ serve({
     if (path === "/list-objects" && method === "GET") {
       const url = new URL(req.url);
       const prefix = url.searchParams.get("prefix") || "";
-      const objects = await client.list({
-        prefix,
-        delimiter: "/",
-      });
+
+      const allObjects = [];
+      let nextContinuationToken = undefined;
+
+      do {
+        const response: S3ListObjectsResponse = await client.list({
+          prefix,
+          delimiter: "/",
+          continuationToken: nextContinuationToken,
+        });
+
+        if (response.contents) {
+          allObjects.push(...response.contents);
+        }
+
+        nextContinuationToken = response.nextContinuationToken;
+      } while (nextContinuationToken);
+
       return postProcessResponse(
-        new Response(JSON.stringify(objects), { status: 200 })
+        new Response(JSON.stringify({ contents: allObjects }), { status: 200 })
       );
     }
 
