@@ -249,11 +249,12 @@ serve({
           },
         });
         calendarObjects.forEach((event) => {
-          let parsed = Object.values(ical.parseICS(event.data)).find(
+          let parsed: any = Object.values(ical.parseICS(event.data)).find(
             (value: any) => value.type === "VEVENT"
           );
           parsedEvents.push({
             ...parsed,
+            isAllDay: parsed.start?.dateOnly || false,
             calendar: calendar.displayName,
             calendarColor: calendar.calendarColor,
           });
