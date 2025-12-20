@@ -1,6 +1,8 @@
-import { serve, S3Client, S3ListObjectsResponse } from "bun";
+import { serve, S3Client, S3ListObjectsResponse, Response } from "bun";
 import { createDAVClient } from "tsdav";
 const ical = require("node-ical");
+
+/// <reference types="bun" />
 
 const PORT = 6989;
 const client = new S3Client({
@@ -27,6 +29,15 @@ const logo_api = process.env.LOGO_API_KEY;
 
 function postProcessResponse(response: Response) {
   response.headers.set("Access-Control-Allow-Origin", "*");
+  response.headers.set(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
+  response.headers.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, X-Requested-With"
+  );
+  response.headers.set("Access-Control-Max-Age", "86400");
   return response;
 }
 
@@ -90,6 +101,10 @@ serve({
   async fetch(req) {
     const path = new URL(req.url).pathname;
     const method = req.method;
+
+    if (method === "OPTIONS") {
+      return postProcessResponse(new Response(null, { status: 204 }));
+    }
 
     if (path === "/") {
       return postProcessResponse(new Response("Hello World"));
