@@ -1,6 +1,8 @@
-import { serve, S3Client, S3ListObjectsResponse, Response } from "bun";
+import { serve, S3Client, S3ListObjectsResponse } from "bun";
 import { createDAVClient } from "tsdav";
 const ical = require("node-ical");
+
+/// <reference types="bun" />
 
 const PORT = 6989;
 const client = new S3Client({
