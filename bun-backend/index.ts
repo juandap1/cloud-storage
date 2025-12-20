@@ -88,6 +88,7 @@ async function getBucketTotalSize(
 serve({
   port: PORT,
   async fetch(req) {
+    console.log(req);
     const path = new URL(req.url).pathname;
     const method = req.method;
 
