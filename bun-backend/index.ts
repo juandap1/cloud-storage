@@ -170,15 +170,15 @@ serve({
 
     if (path.startsWith("/object/") && method === "GET") {
       const key = path.substring("/object/".length);
-      console.log(key);
+      // console.log(key);
       if (!key) {
         return postProcessResponse(
           new Response("No key provided.", { status: 400 })
         );
       }
       const object = client.file(key);
-      console.log(object);
-      console.log(object.size);
+      // console.log(object);
+      // console.log(object.size);
       if (!object || object.size === 0) {
         return postProcessResponse(
           new Response("Object not found.", { status: 404 })
